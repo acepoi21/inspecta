@@ -38,4 +38,8 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: "#777",
   },
+  favoriteButton: {
+    alignSelf: "flex-end",
+    marginTop: 8,
+  },
 });
