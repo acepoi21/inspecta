@@ -3,41 +3,34 @@ import { View, FlatList, Text, TouchableOpacity } from "react-native";
 import ProductCard from "../../atoms/productCard/productCard.atom";
 import { storage, FAVORITES_KEY } from "../../../core/mmkv";
 import { styles } from "./favorites.styles";
-
+import { useFocusEffect } from "@react-navigation/native";
 
 interface Product {
   id: number;
   title: string;
-  image: string;
+  price: number;
   description: string;
+  category: string;
+  image: string;
   rating: {
     rate: number;
     count: number;
   };
 }
 
-const FavoritesScreen = () => {
+const FavoritesScreen = ({ navigation }: { navigation: any }) => {
   const [favorites, setFavorites] = useState<Product[]>([]);
 
-  useEffect(() => {
-    const loadFavorites = () => {
-      const storedFavorites = JSON.parse(storage.getString(FAVORITES_KEY) || "[]");
-      setFavorites(storedFavorites);
-    };
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadFavorites = () => {
+        const storedFavorites = JSON.parse(storage.getString(FAVORITES_KEY) || "[]");
+        setFavorites(storedFavorites);
+      };
 
-    loadFavorites();
-  }, []);
-
-  const addFavorite = (product: Product) => {
-    const storedFavorites = JSON.parse(storage.getString(FAVORITES_KEY) || "[]");
-    const isAlreadyFavorite = storedFavorites.some((item: Product) => item.id === product.id);
-
-    if (!isAlreadyFavorite) {
-      const updatedFavorites = [...storedFavorites, product];
-      storage.set(FAVORITES_KEY, JSON.stringify(updatedFavorites));
-      setFavorites(updatedFavorites);
-    }
-  };
+      loadFavorites();
+    }, [])
+  );
 
   const removeFavorite = (productId: number) => {
     const updatedFavorites = favorites.filter((item) => item.id !== productId);
@@ -48,7 +41,7 @@ const FavoritesScreen = () => {
   if (favorites.length === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.emptyText}>You still dont have any fav item</Text>
+        <Text style={styles.emptyText}>You still don't have any favorite items.</Text>
       </View>
     );
   }
@@ -59,16 +52,15 @@ const FavoritesScreen = () => {
         data={favorites}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <View style={styles.favoriteItem}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Detail", { productId: item.id })}
+          >
             <ProductCard
               product={item}
-              addToFavorites={() => addFavorite(item)}  
-              removeFromFavorites={() => removeFavorite(item.id)}  
+              addToFavorites={() => {}}
+              removeFromFavorites={() => removeFavorite(item.id)}
             />
-            <TouchableOpacity onPress={() => removeFavorite(item.id)} style={styles.removeButton}>
-              <Text style={styles.removeButtonText}>Rimuovi</Text>
-            </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         )}
       />
     </View>

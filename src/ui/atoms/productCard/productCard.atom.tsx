@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { styles } from "./productCard.styles";
 import { FontAwesome } from "@expo/vector-icons";
@@ -17,22 +17,27 @@ interface Product {
   };
 }
 
-interface ProductCardProps {
+const ProductCard = ({
+  product,
+  addToFavorites,
+  removeFromFavorites,
+}: {
   product: Product;
-}
-
-const ProductCard = ({product, addToFavorites, removeFromFavorites}: { product: any, addToFavorites: Function, removeFromFavorites: Function }) => {
+  addToFavorites: (product: Product) => void;
+  removeFromFavorites: (productId: number) => void;
+}) => {
   const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
+    // Verifica se il prodotto è nei preferiti
     const favorites = JSON.parse(storage.getString(FAVORITES_KEY) || "[]");
-    const isAlreadyFavorite = favorites.some((item: any) => item.id === product.id);
+    const isAlreadyFavorite = favorites.some((item: Product) => item.id === product.id);
     setIsFavorite(isAlreadyFavorite);
   }, [product.id]);
 
   const handleFavoriteToggle = () => {
     if (isFavorite) {
-      removeFromFavorites();
+      removeFromFavorites(product.id);
     } else {
       addToFavorites(product);
     }
@@ -48,10 +53,9 @@ const ProductCard = ({product, addToFavorites, removeFromFavorites}: { product: 
           {product.rating.rate.toFixed(1)} ({product.rating.count} reviews)
         </Text>
       </View>
-
       <Image source={{ uri: product.image }} style={styles.image} />
-
       <Text style={styles.description}>{product.description}</Text>
+
       <TouchableOpacity onPress={handleFavoriteToggle} style={styles.favoriteButton}>
         <Text style={{ color: isFavorite ? "blue" : "gray", fontSize: 24 }}>♥</Text>
       </TouchableOpacity>
